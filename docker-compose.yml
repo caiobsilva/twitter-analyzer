@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  neo4j:
+    image: neo4j:4.4.5-community
+    container_name: neo4j
+    ports:
+      - "7473:7473"
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      - NEO4J_AUTH=${NEO4J_NAME}/${NEO4J_PASS}
+      - NEO4J_dbms_connector_bolt_listen__address=0.0.0.0:7687
+    tty: true
