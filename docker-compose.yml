@@ -11,4 +11,6 @@ services:
     environment:
       - NEO4J_AUTH=${NEO4J_NAME}/${NEO4J_PASS}
       - NEO4J_dbms_connector_bolt_listen__address=0.0.0.0:7687
+    volumes:
+      - $HOME/neo4j_data:/data
     tty: true

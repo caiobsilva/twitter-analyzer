@@ -1,25 +1,30 @@
 import tweepy, configparser, json
 from entities.tweet import Tweet
 from entities.user import User
+from drivers.neo4j.client import Client
 
 # read authentication credentials
 config = configparser.RawConfigParser()
-config.read('.env')
+config.read(".env")
 
-bearer_token = config['twitter']['bearer_token']
+# create neo4j instance
+neo4j_creds = config["neo4j"]
+neo4j = Client(neo4j_creds["neo4j_uri"], neo4j_creds["neo4j_name"], neo4j_creds["neo4j_pass"])
 
 # authenticate credentials with twitter API
+bearer_token = config["twitter"]["bearer_token"]
 client = tweepy.Client(bearer_token=bearer_token)
 
 # get tweets
 tweets = client.search_recent_tweets(
-  query='spfc',
-  tweet_fields=['created_at'],
-  expansions='author_id'
+  query="spfc",
+  tweet_fields=["created_at"],
+  max_results=10,
+  expansions="author_id"
 )
 
 # create users dict
-users = { u["id"]: u for u in tweets.includes['users'] }
+users = { u["id"]: u for u in tweets.includes["users"] }
 
 for tweet in tweets.data:
   # check if tweet has an author
@@ -29,3 +34,5 @@ for tweet in tweets.data:
 
   author = User(user.id, user.name, user.username)
   tweet = Tweet(tweet.id, author, tweet.text, tweet.created_at)
+
+  neo4j.create(tweet)
