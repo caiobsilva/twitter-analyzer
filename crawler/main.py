@@ -1,7 +1,6 @@
-import tweepy, configparser, json
-from entities.tweet import Tweet
-from entities.user import User
+import tweepy, configparser
 from drivers.neo4j.client import Client
+from use_cases.create_tweet import CreateTweet
 
 # read authentication credentials
 config = configparser.RawConfigParser()
@@ -17,22 +16,24 @@ client = tweepy.Client(bearer_token=bearer_token)
 
 # get tweets
 tweets = client.search_recent_tweets(
-  query="spfc",
-  tweet_fields=["created_at"],
+  query="bolsonaro",
+  tweet_fields=["created_at", "source", "referenced_tweets", "entities", "lang", "public_metrics", "reply_settings"],
+  user_fields=["name", "username", "created_at"],
   max_results=10,
-  expansions="author_id"
+  expansions=["author_id", "referenced_tweets.id", "referenced_tweets.id.author_id"]
 )
 
-# create users dict
+# create users and retweets dictionary
 users = { u["id"]: u for u in tweets.includes["users"] }
+retweets = { rt["id"]: rt for rt in tweets.includes["tweets"] }
 
-for tweet in tweets.data:
-  # check if tweet has an author
-  user = users[tweet.author_id] if users[tweet.author_id] else None
-  if user == None:
-    raise Exception("Missing author")
+for tweet_data in tweets.data:
+  # get related data (parent tweets, users)
+  author_data = users[tweet_data.author_id] if users[tweet_data.author_id] else None
+  parent_id = tweet_data.referenced_tweets[0].id if tweet_data.referenced_tweets != None else None
+  parent_tweet = retweets[parent_id] if parent_id else None
+  parent_author = users[parent_tweet.author_id] if parent_tweet else None
 
-  author = User(user.id, user.name, user.username)
-  tweet = Tweet(tweet.id, author, tweet.text, tweet.created_at)
+  tweet = CreateTweet(tweet_data, author_data, parent_tweet, parent_author).execute()
 
-  neo4j.create(tweet)
+  neo4j.create(tweet, tweet.parent)
