@@ -1,22 +1,24 @@
-import tweepy, configparser
+import os, tweepy
+
+from flask import Flask
 from drivers.neo4j.client import Client
-from use_cases.search_tweet_data import SearchTweetData
+from app.config.routes import application_bp
 
-# read authentication credentials
-config = configparser.RawConfigParser()
-config.read(".env")
+if __name__ == "__main__":
+  # setup flask api
+  app = Flask("crawler")
+  app.register_blueprint(application_bp, url_prefix="/")
 
-# create neo4j instance
-neo4j_creds = config["neo4j"]
-neo4j = Client(neo4j_creds["neo4j_uri"], neo4j_creds["neo4j_name"], neo4j_creds["neo4j_pass"])
+  # create neo4j instance
+  db = Client(
+    os.getenv("NEO4J_URI"),
+    os.getenv("NEO4J_NAME"),
+    os.getenv("NEO4J_PASS")
+  )
+  app.config["db"] = db
 
-# authenticate credentials with twitter API
-bearer_token = config["twitter"]["bearer_token"]
-client = tweepy.Client(bearer_token=bearer_token)
+  # authenticate credentials with twitter API
+  twitter_client = tweepy.Client(bearer_token=os.getenv("TWITTER_BEARER_TOKEN"))
+  app.config["twitter_client"] = twitter_client
 
-# get tweets
-tweets = SearchTweetData(client, "bolsonaro").execute()
-
-# save data to db
-for tweet in tweets:
-  neo4j.create(tweet, tweet.parent)
+  app.run(host="0.0.0.0", port=5000, debug=True)
