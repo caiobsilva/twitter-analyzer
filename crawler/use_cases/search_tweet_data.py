@@ -15,12 +15,12 @@ class SearchTweetData:
     "name", "username", "created_at"
   ]
 
-  def __init__(self, client: tweepy.Client, query: str, max_results: int = 10):
+  def __init__(self, client: tweepy.Client, query: str, max_results: int = 100):
     self.client = client
     self.query = query
     self.max_results = max_results
 
-  def execute(self) -> List[Tweet]:
+  def execute(self):
     results = self.client.search_recent_tweets(
       query = self.query,
       max_results = self.max_results,
