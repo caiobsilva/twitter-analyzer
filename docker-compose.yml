@@ -33,7 +33,7 @@ services:
         REDIS_PORT: ${REDIS_PORT}
         REDIS_PASS: ${REDIS_PASS}
     container_name: rq-worker
-    command: python -m workers.default #rq worker default --url redis://:${REDIS_PASS}@${REDIS_HOST}:${REDIS_PORT}
+    command: python -m workers.default
     depends_on:
       - redis
 
