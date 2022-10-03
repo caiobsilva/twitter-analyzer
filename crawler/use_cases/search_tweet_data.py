@@ -1,6 +1,6 @@
 from entities.tweet import Tweet
 from use_cases.create_tweet import CreateTweet
-from typing import List
+from typing import Tuple, List
 import tweepy
 
 class SearchTweetData:
@@ -19,14 +19,14 @@ class SearchTweetData:
     self, client: tweepy.Client, query: str,
     cursor_id: int = None, start_time: str = None,
     max_results: int = 100
-  ):
+  ) -> None:
     self.client = client
     self.query = query
     self.max_results = max_results
     self.cursor_id = cursor_id
     self.start_time = start_time if cursor_id == None else None
 
-  def execute(self):
+  def execute(self) -> Tuple[List[Tweet], int]:
     results = self.client.search_recent_tweets(
       query = self.query,
       max_results = self.max_results,
@@ -50,11 +50,11 @@ class SearchTweetData:
       if tweet_data.referenced_tweets is not None:
         parent_id = tweet_data.referenced_tweets[0].id
 
-        try:
+        if parent_id in mentions.keys():
           parent_tweet = mentions[parent_id]
           parent_author = users[parent_tweet.author_id]
-        except:
-          parent_tweet, parent_author = None
+        else:
+          parent_tweet = parent_author = None
 
         tweet = CreateTweet(tweet_data, author_data, parent_tweet, parent_author).execute()
       else:
