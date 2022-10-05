@@ -1,5 +1,5 @@
 from flask import current_app, make_response, request
-from use_cases.tasks.tasks import get_tweets
+from crawler.use_cases.tasks.tasks import get_tweets
 
 class ApplicationController:
   def index():

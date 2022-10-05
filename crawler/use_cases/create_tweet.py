@@ -1,5 +1,5 @@
-from entities.tweet import Tweet
-from entities.user import User
+from crawler.entities.tweet import Tweet
+from crawler.entities.user import User
 import html
 
 class CreateTweet:

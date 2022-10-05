@@ -1,6 +1,6 @@
 from typing import List
-from entities.tweet import Tweet
-from drivers.neo4j.client import Client
+from crawler.entities.tweet import Tweet
+from crawler.drivers.neo4j.client import Client
 
 
 class CreateUserRepository:
@@ -19,7 +19,7 @@ class CreateUserRepository:
       if tweet.parent is not None:
         parent_author = tweet.parent.author
         parent_author_query = f"MERGE (pa{i}:Author {parent_author.as_cypher_object()})"
-        relationship_query = f"MERGE (a{i})-[:{tweet.kind.upper()}]->(pa{i})"
+        relationship_query = f"MERGE (a{i})-[:{tweet.kind}]->(pa{i})"
 
       queries.append(f"{parent_author_query} {tweet_author_query} {relationship_query}")
 

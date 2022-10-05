@@ -6,7 +6,7 @@ class Tweet:
     self.created_at = created_at.isoformat()
     self.source = source
     self.lang = lang
-    self.kind = kind or "tweeted" # non retweets or quotes come as 'None'
+    self.kind = (kind or "tweeted").upper() # non retweets or quotes come as 'None'
     self.parent = parent
 
   def as_cypher_object(self):

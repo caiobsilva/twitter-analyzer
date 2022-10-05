@@ -4,7 +4,7 @@ from neo4j import GraphDatabase, exceptions
 import logging
 
 class Client:
-  ATTEMPTS = 5
+  ATTEMPTS = 15
 
   def __init__(self, uri: str, user: str, password: str):
     self.driver = GraphDatabase.driver(uri, auth=(user, password))

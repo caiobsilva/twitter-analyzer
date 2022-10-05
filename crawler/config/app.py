@@ -1,9 +1,9 @@
 import os, tweepy
 
-from drivers.neo4j.client import Client
-from drivers.rq.rq import RQ
+from crawler.drivers.neo4j.client import Client
+from crawler.drivers.rq.rq import RQ
 
-class Config:
+class App:
   def __init__(self):
     self.db = Client(
       os.getenv("NEO4J_URI"),

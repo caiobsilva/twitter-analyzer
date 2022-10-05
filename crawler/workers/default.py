@@ -1,9 +1,9 @@
 import os
 
-from drivers.rq.rq import RQ
-from config.setup import Config
+from crawler.drivers.rq.rq import RQ
+from crawler.config.app import App
 
-app = Config()
+app = App()
 
 rq = RQ(
   os.getenv("REDIS_HOST"),

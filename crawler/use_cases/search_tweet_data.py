@@ -1,5 +1,5 @@
-from entities.tweet import Tweet
-from use_cases.create_tweet import CreateTweet
+from crawler.entities.tweet import Tweet
+from crawler.use_cases.create_tweet import CreateTweet
 from typing import Tuple, List
 import tweepy
 
