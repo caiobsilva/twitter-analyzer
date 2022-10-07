@@ -1,5 +1,5 @@
-from flask import current_app, make_response, request
-from crawler.use_cases.tasks.tasks import get_tweets
+from flask import make_response, request
+from crawler.use_cases.tasks.tasks import query_tweets
 
 class ApplicationController:
   def index():
@@ -8,7 +8,6 @@ class ApplicationController:
     if "query" not in params.keys():
       return make_response({ "error": "missing 'query' param" }, 400)
 
-    search_tweet_job = current_app.config["rq"].new_queue(name="default", timeout=86400)
-    search_tweet_job.enqueue(get_tweets, params["query"], params["start_time"])
+    query_tweets.apply_async((params["query"], params["start_time"]))
 
     return make_response({}, 202)

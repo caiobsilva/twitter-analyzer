@@ -1,22 +1,19 @@
 import os, tweepy
 
 from crawler.drivers.neo4j.client import Client
-from crawler.drivers.rq.rq import RQ
+from celery import Celery
 
-class App:
-  def __init__(self):
-    self.db = Client(
-      os.getenv("NEO4J_URI"),
-      os.getenv("NEO4J_NAME"),
-      os.getenv("NEO4J_PASS")
-    )
+db = Client(
+  os.getenv("NEO4J_URI"),
+  os.getenv("NEO4J_NAME"),
+  os.getenv("NEO4J_PASS")
+)
 
-    # create redis instance
-    self.rq = RQ(
-      os.getenv("REDIS_HOST"),
-      os.getenv("REDIS_PORT"),
-      os.getenv("REDIS_PASS")
-    )
+# redis://:password@hostname:port/db_number
+celery = Celery(
+  "crawler",
+  broker=f"redis://:{os.getenv('REDIS_PASS')}@{os.getenv('REDIS_HOST')}:{os.getenv('REDIS_PORT')}/0",
+  include=["crawler.use_cases.tasks.tasks"]
+)
 
-    # authenticate credentials with twitter API
-    self.twitter_client = tweepy.Client(bearer_token=os.getenv("TWITTER_BEARER_TOKEN"))
+twitter_client = tweepy.Client(bearer_token=os.getenv("TWITTER_BEARER_TOKEN"))

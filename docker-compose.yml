@@ -20,7 +20,7 @@ services:
     ports:
       - "5000:5000"
 
-  rq-worker:
+  workers:
     build:
       context: crawler
       dockerfile: Dockerfile
@@ -32,24 +32,10 @@ services:
         REDIS_HOST: ${REDIS_HOST}
         REDIS_PORT: ${REDIS_PORT}
         REDIS_PASS: ${REDIS_PASS}
-    container_name: rq-worker
-    command: python -m workers.default
+    container_name: workers
+    command: celery -A crawler.use_cases.tasks.tasks worker -l info -c 7
     depends_on:
       - redis
-
-  neo4j:
-    image: neo4j:4.4.5-community
-    container_name: neo4j
-    ports:
-      - "7473:7473"
-      - "7474:7474"
-      - "7687:7687"
-    environment:
-      - NEO4J_AUTH=${NEO4J_NAME}/${NEO4J_PASS}
-      - NEO4J_dbms_connector_bolt_listen__address=0.0.0.0:7687
-    volumes:
-      - $HOME/neo4j_data:/data
-    tty: true
 
   redis:
     image: redis:7.0.5-alpine
