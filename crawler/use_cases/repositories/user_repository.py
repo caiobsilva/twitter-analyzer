@@ -3,15 +3,17 @@ from crawler.entities.tweet import Tweet
 from crawler.drivers.neo4j.client import Client
 
 
-class CreateUserRepository:
-  def __init__(self, db: Client, tweets: List[Tweet]) -> None:
+class UserRepository:
+  def __init__(self, db: Client) -> None:
     self.db = db
-    self.tweets = tweets
 
-  def execute(self) -> None:
+  def show(self) -> List:
+    return self.db.read("MATCH (n)-[r]-(m) RETURN n, r, m")
+
+  def create(self, tweets: List[Tweet]) -> None:
     queries = []
 
-    for i, tweet in enumerate(self.tweets):
+    for i, tweet in enumerate(tweets):
       tweet_author = tweet.author
       tweet_author_query = f"MERGE (a{i}:Author {tweet_author.as_cypher_object()})"
       parent_author_query = relationship_query = ""
@@ -24,4 +26,4 @@ class CreateUserRepository:
       queries.append(f"{parent_author_query} {tweet_author_query} {relationship_query}")
 
     query = " ".join(queries)
-    self.db.run(query)
+    self.db.write(query)
