@@ -5,3 +5,4 @@ application_bp = Blueprint("api", "crawler")
 
 application_bp.route("/", methods=["POST"])(ApplicationController.create)
 application_bp.route("/", methods=["GET"])(ApplicationController.show)
+application_bp.route("/api/file", methods=["POST"])(ApplicationController.save_file)

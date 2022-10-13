@@ -1,7 +1,8 @@
 FROM python:3.9.12
 
-RUN pip3 install flask tweepy neo4j redis celery[redis]
+RUN pip3 install flask tweepy neo4j redis celery[redis] networkx[default]
 
+ARG APP_URI
 ARG TWITTER_BEARER_TOKEN
 
 ARG NEO4J_URI
@@ -12,6 +13,7 @@ ARG REDIS_HOST
 ARG REDIS_PORT
 ARG REDIS_PASS
 
+ENV APP_URI=${APP_URI}
 ENV TWITTER_BEARER_TOKEN=${TWITTER_BEARER_TOKEN}
 ENV NEO4J_URI=${NEO4J_URI}
 ENV NEO4J_NAME=${NEO4J_NAME}
