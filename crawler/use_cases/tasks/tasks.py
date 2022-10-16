@@ -1,32 +1,38 @@
 from crawler.config.app import db, twitter_client, celery
-from crawler.use_cases.search_tweet_data import SearchTweetData
+from crawler.entities.missing_tweet import MissingTweet
+from crawler.use_cases.search_tweets import SearchTweets
 from crawler.use_cases.repositories.user_repository import UserRepository
 import networkx as nx
 
 import logging, requests, os
 
 @celery.task
-def query_tweets(query, start_time, amount=100, batch_size=100, tweet_results=100):
-    cursor_id = None
-    batch_amount = batch_size // tweet_results
-    repetitions = amount // batch_size
+def query_tweets(query, start_time, amount=100, batch_size=100):
+  cursor_id = None
+  repetitions = amount // batch_size
 
-    for _ in range(repetitions):
-      for _ in range(batch_amount):
-        logging.warning(f" ========= cursor: {cursor_id}")
+  for _ in range(repetitions):
+    logging.warning(f" ========= cursor: {cursor_id}")
 
-        try:
-          tweets, cursor_id = SearchTweetData(
-            twitter_client, query, cursor_id, start_time
-          ).execute()
-        except Exception as e:
-          logging.exception("error", exc_info=e)
-          break
+    tweets, cursor_id = SearchTweets(twitter_client) \
+      .by_stream(query, batch_size, start_time, cursor_id=cursor_id)
 
-      UserRepository(db).create(tweets)
-      logging.warning(f" batch of {batch_size} tweets written to db")
+    # try handling missing tweets later
+    # missing_tweets = [tweet for tweet in tweets if isinstance(tweet.parent, MissingTweet)]
+    # missing_parent_ids = [tweet.parent.id for tweet in missing_tweets]
+    # logging.warning(missing_parent_ids)
 
-    analyze_graph.apply_async()
+    # missing_parents = SearchTweets(twitter_client).by_ids(missing_parent_ids)
+    # for parent in missing_parents:
+    #   logging.warning("\iteração missing_parents\n")
+    #   for tweet in tweets:
+    #     if tweet.parent.id == parent.id:
+    #       tweet.parent = parent
+
+    # logging.warning("\ncriando tweets no banco\n")
+    UserRepository(db).create(tweets)
+
+  analyze_graph.apply_async()
 
 @celery.task
 def analyze_graph():
@@ -41,6 +47,7 @@ def analyze_graph():
     g.add_node(node.id, properties=node._properties)
     g.add_node(int(node._properties["id"]), properties=node._properties)
 
+  # todo: check if edges are coherent
   for rel in rels:
     g.add_edge(rel[0], rel[1])
 

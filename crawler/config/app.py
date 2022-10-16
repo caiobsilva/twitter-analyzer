@@ -1,7 +1,8 @@
-import os, tweepy
-
 from crawler.drivers.neo4j.client import Client
+from crawler.drivers.twitter.api_wrapper import TwitterApiWrapper
 from celery import Celery
+
+import os, tweepy
 
 db = Client(
   os.getenv("NEO4J_URI"),
@@ -16,4 +17,5 @@ celery = Celery(
   include=["crawler.use_cases.tasks.tasks"]
 )
 
-twitter_client = tweepy.Client(bearer_token=os.getenv("TWITTER_BEARER_TOKEN"))
+tweepy_client = tweepy.Client(bearer_token=os.getenv("TWITTER_BEARER_TOKEN"))
+twitter_client = TwitterApiWrapper(tweepy_client)
