@@ -42,7 +42,7 @@ def query_tweets(query, start_time, amount=200, batch_size=100):
 
 @celery.task
 def analyze_graph():
-  result = UserRepository(db).show()
+  result = UserRepository(db).show("RETWEETED")
 
   data = AnalyzeGraph(result.nodes, result.relationships).execute()
 

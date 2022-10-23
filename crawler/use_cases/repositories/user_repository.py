@@ -8,8 +8,8 @@ class UserRepository:
   def __init__(self, db: Client) -> None:
     self.db = db
 
-  def show(self) -> List:
-    return self.db.read("MATCH (n)-[r]-(m) RETURN n, r, m")
+  def show(self, relationship: str) -> List:
+    return self.db.read(f"MATCH (n)-[r:{relationship}]-(m) RETURN n, r, m")
 
   def create(self, tweets: List[Tweet]) -> None:
     queries = []
