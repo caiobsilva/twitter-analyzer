@@ -17,5 +17,8 @@ celery = Celery(
   include=["crawler.use_cases.tasks.tasks"]
 )
 
-tweepy_client = tweepy.Client(bearer_token=os.getenv("TWITTER_BEARER_TOKEN"))
+tweepy_client = tweepy.Client(
+  bearer_token=os.getenv("TWITTER_BEARER_TOKEN"),
+  wait_on_rate_limit=True
+)
 twitter_client = TwitterApiWrapper(tweepy_client)

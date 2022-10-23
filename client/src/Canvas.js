@@ -40,7 +40,6 @@ class Canvas extends Component {
       }
     })
 
-
     var min = graph_data.nodes.reduce(function(prev, curr) {
       return prev.size < curr.size ? prev : curr
     })
