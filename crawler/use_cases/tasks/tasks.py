@@ -7,7 +7,7 @@ import networkx as nx
 import logging, requests, os, math
 
 @celery.task
-def query_tweets(query, start_time, amount=1000, batch_size=100):
+def query_tweets(query, start_time, amount=500, batch_size=100):
   cursor_id = None
   repetitions = math.ceil(amount / batch_size)
 
@@ -49,31 +49,30 @@ def analyze_graph():
   g = nx.Graph()
 
   for node in nodes:
-    g.add_node(node.id, properties=node._properties)
+    # g.add_node(node.id, properties=node._properties)
     g.add_node(int(node._properties["id"]), properties=node._properties)
 
   for rel in rels:
     g.add_edge(rel["from"], rel["to"])
 
   pos = nx.spring_layout(g)
-
-  err_count = suc_count = 0
+  deg_centrality = nx.degree_centrality(g)
 
   node_list = {}
-  for node in nodes[0:1000]:
+  for node in nodes:
     id = node._properties["id"]
+
     x, y = pos[id]
+    dc = deg_centrality[id]
 
     node_list[id] = node._properties
 
     try:
       node_list[id]["x"] = x
       node_list[id]["y"] = y
-
-      suc_count += 1
+      node_list[id]["degree_centrality"] = dc
     except Exception as e:
       logging.exception(e)
-      err_count += 1
 
   data = { "nodes": node_list, "edges": rels }
 

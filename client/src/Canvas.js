@@ -23,16 +23,33 @@ class Canvas extends Component {
 
   setGraphData(graph_data) {
     graph_data.nodes = Object.values(graph_data.nodes).map((node) => {
+      var size = node.degree_centrality * 10000
+
+      size = size < 20 ? 20 : size
+      size = size > 100 ? 100 : size
+
       return {
         id: node.id,
         name: node.name,
         username: node.username,
         created_at: node.created_at,
-        x: node.x * 10000,
-        y: node.y * 10000,
-        label: node.username
+        x: node.x * 20000,
+        y: node.y * 20000,
+        label: node.username,
+        size: size
       }
     })
+
+
+    var min = graph_data.nodes.reduce(function(prev, curr) {
+      return prev.size < curr.size ? prev : curr
+    })
+
+    var max = graph_data.nodes.reduce(function(prev, curr) {
+      return prev.size < curr.size ? curr : prev
+    })
+
+    console.log(`min: ${min.size}, max: ${max.size}`)
 
     this.setState(() => {
       return { graph: graph_data }
@@ -49,7 +66,11 @@ class Canvas extends Component {
         shape: "dot",
         color: {
           border: "#B5838D",
-          background: "#E5989B"
+          background: "#E5989B",
+          // hover: {
+          //   border: ,
+          //   background:
+          // }
         }
       },
       edges: {
