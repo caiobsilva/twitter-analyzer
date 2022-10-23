@@ -15,13 +15,13 @@ class Tweet:
     serializable_dict = vars(self).copy()
 
     # 'kind' is not displayed on nodes, as they are shared
-    serializable_dict.pop("kind")
+    serializable_dict.pop("kind", "text")
 
     # attributes text to original author if retweet; changes 'author' to 'author_id'
     if self.kind == "retweeted":
       serializable_dict.pop("author")
       serializable_dict["id"] = self.parent.id
-      serializable_dict["text"] = self.parent.text
+      # serializable_dict["text"] = self.parent.text
       serializable_dict["source"] = self.parent.source
       serializable_dict["author_id"] = self.parent.author.id
       serializable_dict["created_at"] = self.parent.created_at

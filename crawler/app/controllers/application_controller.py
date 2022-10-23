@@ -6,7 +6,10 @@ class ApplicationController:
   def show():
     res = JSONCache().load("test")
 
-    return make_response(res, 200)
+    response = make_response(res, 200)
+    response.headers.add("Access-Control-Allow-Origin", "*")
+
+    return response
 
   def create():
     params = request.args.to_dict()

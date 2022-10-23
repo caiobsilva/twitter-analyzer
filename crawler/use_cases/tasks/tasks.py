@@ -4,33 +4,38 @@ from crawler.use_cases.search_tweets import SearchTweets
 from crawler.use_cases.repositories.user_repository import UserRepository
 import networkx as nx
 
-import logging, requests, os
+import logging, requests, os, math
 
 @celery.task
-def query_tweets(query, start_time, amount=100, batch_size=100):
+def query_tweets(query, start_time, amount=1000, batch_size=100):
   cursor_id = None
-  repetitions = amount // batch_size
+  repetitions = math.ceil(amount / batch_size)
+
 
   for _ in range(repetitions):
-    logging.warning(f" ========= cursor: {cursor_id}")
+    try:
+      logging.warning(f" ========= cursor: {cursor_id}")
 
-    tweets, cursor_id = SearchTweets(twitter_client) \
-      .by_stream(query, batch_size, start_time, cursor_id=cursor_id)
+      tweets, cursor_id = SearchTweets(twitter_client) \
+        .by_stream(query, batch_size, start_time, cursor_id=cursor_id)
 
-    # try handling missing tweets later
-    # missing_tweets = [tweet for tweet in tweets if isinstance(tweet.parent, MissingTweet)]
-    # missing_parent_ids = [tweet.parent.id for tweet in missing_tweets]
-    # logging.warning(missing_parent_ids)
+      # try handling missing tweets later
+      # missing_tweets = [tweet for tweet in tweets if isinstance(tweet.parent, MissingTweet)]
+      # missing_parent_ids = [tweet.parent.id for tweet in missing_tweets]
+      # logging.warning(missing_parent_ids)
 
-    # missing_parents = SearchTweets(twitter_client).by_ids(missing_parent_ids)
-    # for parent in missing_parents:
-    #   logging.warning("\iteração missing_parents\n")
-    #   for tweet in tweets:
-    #     if tweet.parent.id == parent.id:
-    #       tweet.parent = parent
+      # missing_parents = SearchTweets(twitter_client).by_ids(missing_parent_ids)
+      # for parent in missing_parents:
+      #   logging.warning("\iteração missing_parents\n")
+      #   for tweet in tweets:
+      #     if tweet.parent.id == parent.id:
+      #       tweet.parent = parent
 
-    # logging.warning("\ncriando tweets no banco\n")
-    UserRepository(db).create(tweets)
+      # logging.warning("\ncriando tweets no banco\n")
+      UserRepository(db).create(tweets)
+    except Exception as e:
+      logging.exception(e)
+      break
 
   analyze_graph.apply_async()
 
@@ -38,7 +43,7 @@ def query_tweets(query, start_time, amount=100, batch_size=100):
 def analyze_graph():
   result = UserRepository(db).show()
 
-  rels = [[rel.start_node["id"], rel.end_node["id"]] for rel in result.relationships]
+  rels = [{ "from": rel.start_node["id"], "to": rel.end_node["id"] } for rel in result.relationships]
   nodes = [node for node in result.nodes]
 
   g = nx.Graph()
@@ -47,17 +52,10 @@ def analyze_graph():
     g.add_node(node.id, properties=node._properties)
     g.add_node(int(node._properties["id"]), properties=node._properties)
 
-  # todo: check if edges are coherent
   for rel in rels:
-    g.add_edge(rel[0], rel[1])
+    g.add_edge(rel["from"], rel["to"])
 
   pos = nx.spring_layout(g)
-
-  edges = []
-  for edge in g.edges():
-    x0, y0 = pos[edge[0]]
-    x1, y1 = pos[edge[1]]
-    edges.append([[x0, y0], [x1, y1]])
 
   err_count = suc_count = 0
 
@@ -69,15 +67,15 @@ def analyze_graph():
     node_list[id] = node._properties
 
     try:
-      node_list[id]["pos_x"] = x
-      node_list[id]["pos_y"] = y
+      node_list[id]["x"] = x
+      node_list[id]["y"] = y
 
       suc_count += 1
     except Exception as e:
-      print(f"{id} {e}")
+      logging.exception(e)
       err_count += 1
 
-  data = { "nodes": node_list, "edges": edges }
+  data = { "nodes": node_list, "edges": rels }
 
   url = f"http://{os.getenv('APP_URI')}:5000/api/file"
   requests.post(url, json = data)

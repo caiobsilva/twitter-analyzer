@@ -14,14 +14,15 @@ class Client:
     with self.driver.session() as session:
       result = self.run(session.read_transaction, query)
 
-    # self.driver.close()
+    self.driver.close()
     return result
 
   def write(self, query) -> List[Any]:
     with self.driver.session() as session:
+      # result = session.run(query).graph()
       result = self.run(session.write_transaction, query)
 
-    # self.driver.close()
+    self.driver.close()
     return result
 
   def run(self, method, query) -> List[Any]:
