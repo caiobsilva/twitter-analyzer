@@ -1,5 +1,5 @@
 import React, { Component } from "react"
-import Graph from "react-graph-vis";
+import Graph from "react-graph-vis"
 
 class Canvas extends Component {
   constructor(props) {
@@ -36,19 +36,27 @@ class Canvas extends Component {
         x: node.x * 20000,
         y: node.y * 20000,
         label: node.username,
-        size: size
+        size: size,
+        title: node.name
       }
     })
 
-    var min = graph_data.nodes.reduce(function(prev, curr) {
-      return prev.size < curr.size ? prev : curr
-    })
+    graph_data.nodes = graph_data.nodes.reduce((foundValues, nextNode) =>
+      foundValues.map((value) => value.id).includes(nextNode.id) ?
+      foundValues : foundValues.concat(nextNode), []
+    )
+    var ids = graph_data.nodes.map((node) => node.id)
+    console.log(ids)
 
-    var max = graph_data.nodes.reduce(function(prev, curr) {
-      return prev.size < curr.size ? curr : prev
-    })
+    // var min = graph_data.nodes.reduce(function(prev, curr) {
+    //   return prev.size < curr.size ? prev : curr
+    // })
 
-    console.log(`min: ${min.size}, max: ${max.size}`)
+    // var max = graph_data.nodes.reduce(function(prev, curr) {
+    //   return prev.size < curr.size ? curr : prev
+    // })
+
+    // console.log(`min: ${min.size}, max: ${max.size}`)
 
     this.setState(() => {
       return { graph: graph_data }
@@ -65,7 +73,7 @@ class Canvas extends Component {
         shape: "dot",
         color: {
           border: "#B5838D",
-          background: "#E5989B",
+          background: "#E5989B"
           // hover: {
           //   border: ,
           //   background:
@@ -79,8 +87,13 @@ class Canvas extends Component {
       interaction: {
         dragNodes: true,
         zoomView: true,
-        dragView: true
+        dragView: true,
+        hover: true
       }
+    }
+
+    const events = {
+      hoverNode: (node) => { console.log(node) }
     }
 
     return (
@@ -88,6 +101,7 @@ class Canvas extends Component {
         <Graph
           graph={this.state.graph}
           options={options}
+          events={events}
           style={{ height: "100vh" }}
         />
       </div>

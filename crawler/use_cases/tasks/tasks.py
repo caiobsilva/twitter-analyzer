@@ -8,10 +8,9 @@ import networkx as nx
 import logging, requests, os, math
 
 @celery.task
-def query_tweets(query, start_time, amount=200, batch_size=100):
+def query_tweets(query, start_time, amount=100, batch_size=100):
   cursor_id = None
   repetitions = math.ceil(amount / batch_size)
-
 
   for _ in range(repetitions):
     try:

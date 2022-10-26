@@ -1,5 +1,5 @@
 from flask import make_response, request
-from crawler.use_cases.tasks.tasks import query_tweets
+from crawler.use_cases.tasks.tasks import query_tweets, analyze_graph
 from crawler.drivers.cache.json_cache import JSONCache
 
 class ApplicationController:
@@ -27,3 +27,8 @@ class ApplicationController:
     JSONCache().save(data, "test")
 
     return make_response({}, 200)
+
+  def analyze():
+    analyze_graph.apply_async()
+
+    return make_response({}, 202)
