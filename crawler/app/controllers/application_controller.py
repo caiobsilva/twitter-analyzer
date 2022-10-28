@@ -1,6 +1,8 @@
 from flask import make_response, request
 from crawler.use_cases.tasks.tasks import query_tweets, analyze_graph
+from crawler.use_cases.search_tweets import SearchTweets
 from crawler.drivers.cache.json_cache import JSONCache
+from crawler.config.app import twitter_client
 
 class ApplicationController:
   def show():
@@ -21,6 +23,18 @@ class ApplicationController:
 
     return make_response({}, 202)
 
+  # debug
+  def find_by_id():
+    params = request.args.to_dict()
+
+    if "id" not in params.keys():
+      return make_response({ "error": "missing 'id' param" }, 400)
+
+    tweets = SearchTweets(twitter_client).by_ids([params["id"]])
+
+    return make_response({ "tweets": [tweet.id for tweet in tweets] }, 200)
+
+  # debug
   def save_file():
     data = request.get_json()
 
@@ -28,6 +42,7 @@ class ApplicationController:
 
     return make_response({}, 200)
 
+  # debug
   def analyze():
     analyze_graph.apply_async()
 

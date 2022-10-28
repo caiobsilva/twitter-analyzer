@@ -65,23 +65,29 @@ class Canvas extends Component {
 
   render() {
     const canvasStyle = {
-      backgroundColor: "#6D6875"
+      backgroundColor: "#041C32"
     }
 
     const options = {
       nodes: {
         shape: "dot",
         color: {
-          border: "#B5838D",
-          background: "#E5989B"
-          // hover: {
-          //   border: ,
-          //   background:
-          // }
+          border: "#ECB365",
+          background: "#ECB365",
+          hover: {
+            border: "#A5C9CA",
+            background: "#A5C9CA"
+          }
+        },
+        font: {
+          color: "#DCD7C9"
         }
       },
       edges: {
-        smooth: false
+        smooth: false,
+        color: {
+          color: "#A5C9CA"
+        }
       },
       physics: false,
       interaction: {

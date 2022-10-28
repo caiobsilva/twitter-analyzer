@@ -56,11 +56,13 @@ class SearchTweets:
     tweets = []
     for _ in range(batches):
       tweets_data, mentions, users = self.client.get_tweets(
-        ids = ids,
+        ids = unique_ids,
         expansions = self.EXPANSIONS,
         user_fields = self.USER_FIELDS,
         tweet_fields = self.TWEET_FIELDS
       )
+
+      if tweets_data is None: break
 
       tweets.extend(self._normalize_tweets(tweets_data, mentions, users))
 

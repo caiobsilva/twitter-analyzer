@@ -1,6 +1,8 @@
 from collections import namedtuple
 from typing import NamedTuple
 
+from crawler.entities.missing_user import MissingUser
+
 class MissingTweet:
   def __init__(self, id):
     self.id = id
@@ -17,9 +19,11 @@ class MissingTweet:
     this method returns a mocked author with an id related to the tweet,
     so that mentions can still be traced in the database"""
 
-    MissingAuthor = namedtuple("MissingAuthor", ["id", "name"])
+    return MissingUser(f"00000{self.id}")
 
-    return MissingAuthor(int(f"00000{self.id}"), "MissingAuthor")
+    # MissingAuthor = namedtuple("MissingAuthor", ["id", "name"])
+
+    # return MissingAuthor(int(f"00000{self.id}"), "Missing name")
 
   def as_cypher_object(self):
     '''self.a, self.b... -> { 'a': 'x', 'b': 'y' }'''

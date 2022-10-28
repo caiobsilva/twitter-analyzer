@@ -17,7 +17,8 @@ services:
     container_name: twitter-parser
     command: python -m main
     depends_on:
-      - redis
+      neo4j:
+        condition: service_healthy
     ports:
       - "5000:5000"
     volumes:
@@ -39,7 +40,29 @@ services:
     container_name: workers
     command: celery -A crawler.use_cases.tasks.tasks worker -l info -c 7
     depends_on:
-      - redis
+      neo4j:
+        condition: service_healthy
+
+  neo4j:
+    image: neo4j:4.4.5-community
+    container_name: neo4j
+    hostname: neo4j
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+      - "7473:7473"
+    volumes:
+      - ./data:/data
+    environment:
+      NEO4J_AUTH: "neo4j/${NEO4J_PASS}"
+      NEO4J_dbms_logs_debug_level: DEBUG
+      NEO4J_dbms_connector_bolt_listen__address: 0.0.0.0:7687
+    healthcheck:
+      test: wget http://localhost:7474 || exit 1
+      interval: 1s
+      timeout: 10s
+      retries: 20
+      start_period: 3s
 
   redis:
     image: redis:7.0.5-alpine

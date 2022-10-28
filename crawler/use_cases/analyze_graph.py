@@ -13,6 +13,7 @@ class AnalyzeGraph:
 
     deg_centrality = nx.degree_centrality(relevant_graph)
     positions = nx.spring_layout(relevant_graph)
+    # positions = nx.kamada_kawai_layout(relevant_graph)
 
     return self._aggregate_data(relevant_graph, deg_centrality, positions)
 

@@ -3,12 +3,12 @@ from crawler.entities.missing_tweet import MissingTweet
 from crawler.use_cases.search_tweets import SearchTweets
 from crawler.use_cases.analyze_graph import AnalyzeGraph
 from crawler.use_cases.repositories.user_repository import UserRepository
-import networkx as nx
+from neo4j import exceptions
 
 import logging, requests, os, math
 
 @celery.task
-def query_tweets(query, start_time, amount=100, batch_size=100):
+def query_tweets(query, start_time, amount=10000, batch_size=100, cursor_id = None):
   cursor_id = None
   repetitions = math.ceil(amount / batch_size)
 
@@ -33,6 +33,8 @@ def query_tweets(query, start_time, amount=100, batch_size=100):
 
       # logging.warning("\ncriando tweets no banco\n")
       UserRepository(db).create(tweets)
+    except exceptions.IncompleteCommit or exceptions.ServiceUnavailable:
+      query_tweets.apply_async((query, start_time, cursor_id))
     except Exception as e:
       logging.exception(e)
       break

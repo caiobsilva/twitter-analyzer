@@ -3,3 +3,4 @@ __pycache__
 /neo4j
 .ipynb_checkpoints
 notebooks
+data

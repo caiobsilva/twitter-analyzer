@@ -10,10 +10,14 @@ class Client:
   def __init__(self, uri: str, user: str, password: str):
     self.driver = GraphDatabase.driver(uri, auth=(user, password))
 
+    with self.driver.session() as session:
+      session.run(
+        "CREATE INDEX author_attrs IF NOT EXISTS FOR (n:Author) ON (n.id, n.username, n.name, n.created_at)"
+      )
+
   def read(self, query) -> List[Any]:
     with self.driver.session() as session:
       result = self.run(session.read_transaction, query)
-
     self.driver.close()
     return result
 
@@ -27,13 +31,13 @@ class Client:
 
   def run(self, method, query) -> List[Any]:
     for attempt in range(self.ATTEMPTS):
-      try:
-        return method(self.run_query, query)
+      # try:
+      return method(self.run_query, query)
 
-      except exceptions.IncompleteCommit or exceptions.ServiceUnavailable:
-        logging.warning("Service unavailable")
-        sleep(5)
-        if attempt >= self.ATTEMPTS: raise
+      # except exceptions.IncompleteCommit or exceptions.ServiceUnavailable:
+      #   logging.warning("Service unavailable")
+      #   sleep(5)
+      #   if attempt >= self.ATTEMPTS: raise
 
   def run_query(self, tx, query):
     result = tx.run(query)

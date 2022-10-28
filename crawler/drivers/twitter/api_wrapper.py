@@ -1,22 +1,34 @@
 from crawler.drivers.twitter.exceptions import AuthorizationError
 from typing import Any, Callable, List, Tuple
 
-import logging, tweepy
+import logging, tweepy, time
 
 class TwitterApiWrapper:
   def __init__(self, client: tweepy.Client) -> None:
     self.client = client
 
   def search_recent_tweets(self, **kwargs) -> Tuple[Any, dict, dict, int]:
-    return self._call(self.client.search_recent_tweets, **kwargs)
+    try:
+      tweets_data, mentions, users, cursor = \
+        self._call(self.client.search_recent_tweets, **kwargs)
+    except AuthorizationError as e:
+      logging.exception(e)
+      time.sleep(2)
+      tweets_data, mentions, users, cursor = \
+        self._call(self.client.search_recent_tweets, **kwargs)
+
+    return tweets_data, mentions, users, cursor
+
+    # return self._call(self.client.search_recent_tweets, **kwargs)
 
   def get_tweets(self, ids: List[int], **kwargs) -> Tuple[Any, dict, dict]:
     try:
       tweets_data, mentions, users, _ = \
-        self._call(self.client.get_tweets, **kwargs)
+        self._call(self.client.get_tweets, ids=ids, **kwargs)
     # if tweet is from a private account, it is removed from the list and the request is retried
     except AuthorizationError as e:
       ids = [id for id in ids if id != e.tweet_id]
+      if len(ids) == 0: return None, {}, {}
       tweets_data, mentions, users, _ = self.get_tweets(ids=ids, **kwargs)
 
     return tweets_data, mentions, users
@@ -31,12 +43,12 @@ class TwitterApiWrapper:
     results = endpoint(**kwargs)
 
     # tweepy doesn't handle API errors. this checks for tweets by private accounts
-    if len(results.errors):
-      error = results.errors[0]
-      if error["title"] == "Authorization Error":
-        raise AuthorizationError(error["detail"], error["resource_id"])
-      else:
-        raise Exception(error["title"])
+    # if len(results.errors):
+    #   error = results.errors[0]
+    #   if error["title"] == "Authorization Error":
+    #     raise AuthorizationError(error["detail"], error["resource_id"])
+    #   else:
+    #     raise Exception(error["title"])
 
     # tweets, users and mentions (rts, quotes) come separated in different dictionaries
     tweets_data = results.data
