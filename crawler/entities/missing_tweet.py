@@ -21,10 +21,6 @@ class MissingTweet:
 
     return MissingUser(f"00000{self.id}")
 
-    # MissingAuthor = namedtuple("MissingAuthor", ["id", "name"])
-
-    # return MissingAuthor(int(f"00000{self.id}"), "Missing name")
-
   def as_cypher_object(self):
     '''self.a, self.b... -> { 'a': 'x', 'b': 'y' }'''
 

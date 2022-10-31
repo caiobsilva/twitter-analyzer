@@ -11,34 +11,25 @@ class Client:
     self.driver = GraphDatabase.driver(uri, auth=(user, password))
 
     with self.driver.session() as session:
-      session.run(
-        "CREATE INDEX author_attrs IF NOT EXISTS FOR (n:Author) ON (n.id, n.username, n.name, n.created_at)"
-      )
+      session.run("CREATE INDEX author_attrs IF NOT EXISTS FOR (n:Author) ON (n.id)")
 
   def read(self, query) -> List[Any]:
     with self.driver.session() as session:
       result = self.run(session.read_transaction, query)
+
     self.driver.close()
     return result
 
-  def write(self, query) -> List[Any]:
+  def write(self, query, **kwargs) -> List[Any]:
     with self.driver.session() as session:
-      # result = session.run(query).graph()
-      result = self.run(session.write_transaction, query)
+      result = self.run(session.write_transaction, query, **kwargs)
 
     self.driver.close()
     return result
 
-  def run(self, method, query) -> List[Any]:
-    for attempt in range(self.ATTEMPTS):
-      # try:
-      return method(self.run_query, query)
+  def run(self, method, query, **kwargs) -> List[Any]:
+    return method(self.run_query, query, **kwargs)
 
-      # except exceptions.IncompleteCommit or exceptions.ServiceUnavailable:
-      #   logging.warning("Service unavailable")
-      #   sleep(5)
-      #   if attempt >= self.ATTEMPTS: raise
-
-  def run_query(self, tx, query):
-    result = tx.run(query)
+  def run_query(self, tx, query, **kwargs):
+    result = tx.run(query, **kwargs)
     return result.graph()

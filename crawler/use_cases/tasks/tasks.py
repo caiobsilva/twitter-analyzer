@@ -8,7 +8,7 @@ from neo4j import exceptions
 import logging, requests, os, math
 
 @celery.task
-def query_tweets(query, start_time, amount=10000, batch_size=100, cursor_id = None):
+def query_tweets(query, start_time, amount=1000, batch_size=300, cursor_id = None):
   cursor_id = None
   repetitions = math.ceil(amount / batch_size)
 
@@ -19,22 +19,13 @@ def query_tweets(query, start_time, amount=10000, batch_size=100, cursor_id = No
       tweets, cursor_id = SearchTweets(twitter_client) \
         .by_stream(query, batch_size, start_time, cursor_id=cursor_id)
 
-      # try handling missing tweets later
-      # missing_tweets = [tweet for tweet in tweets if isinstance(tweet.parent, MissingTweet)]
-      # missing_parent_ids = [tweet.parent.id for tweet in missing_tweets]
-      # logging.warning(missing_parent_ids)
-
-      # missing_parents = SearchTweets(twitter_client).by_ids(missing_parent_ids)
-      # for parent in missing_parents:
-      #   logging.warning("\iteração missing_parents\n")
-      #   for tweet in tweets:
-      #     if tweet.parent.id == parent.id:
-      #       tweet.parent = parent
-
-      # logging.warning("\ncriando tweets no banco\n")
       UserRepository(db).create(tweets)
     except exceptions.IncompleteCommit or exceptions.ServiceUnavailable:
-      query_tweets.apply_async((query, start_time, cursor_id))
+      query_tweets.retry(
+        (query, start_time, amount, batch_size, cursor_id),
+        countdown=60, max_retries=5
+      )
+      # query_tweets.apply_async((query, start_time, amount, batch_size, cursor_id))
     except Exception as e:
       logging.exception(e)
       break

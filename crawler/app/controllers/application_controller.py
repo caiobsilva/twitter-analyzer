@@ -19,7 +19,10 @@ class ApplicationController:
     if "query" not in params.keys():
       return make_response({ "error": "missing 'query' param" }, 400)
 
-    query_tweets.apply_async((params["query"], params["start_time"]))
+    query_tweets.apply_async(
+      (params["query"], params["start_time"]),
+      { "cursor_id": params["cursor_id"] }
+    )
 
     return make_response({}, 202)
 
