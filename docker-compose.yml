@@ -3,7 +3,7 @@ version: '3.8'
 services:
   twitter-parser:
     build:
-      context: crawler
+      context: application
       dockerfile: Dockerfile
       args:
         APP_URI: ${APP_URI}
@@ -26,7 +26,7 @@ services:
 
   workers:
     build:
-      context: crawler
+      context: application
       dockerfile: Dockerfile
       args:
         APP_URI: ${APP_URI}
@@ -38,7 +38,7 @@ services:
         REDIS_PORT: ${REDIS_PORT}
         REDIS_PASS: ${REDIS_PASS}
     container_name: workers
-    command: celery -A crawler.use_cases.tasks.tasks worker -l info -c 7
+    command: celery -A application.use_cases.tasks.tasks worker -l info -c 7
     depends_on:
       neo4j:
         condition: service_healthy

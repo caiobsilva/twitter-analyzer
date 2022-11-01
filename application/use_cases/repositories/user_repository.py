@@ -1,6 +1,6 @@
 from typing import List
-from crawler.entities.tweet import Tweet
-from crawler.drivers.neo4j.client import Client
+from application.entities.tweet import Tweet
+from application.drivers.neo4j.client import Client
 
 class UserRepository:
   def __init__(self, db: Client) -> None:

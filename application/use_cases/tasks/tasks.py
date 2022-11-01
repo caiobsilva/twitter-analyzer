@@ -1,8 +1,8 @@
-from crawler.config.app import db, twitter_client, celery
-from crawler.entities.missing_tweet import MissingTweet
-from crawler.use_cases.search_tweets import SearchTweets
-from crawler.use_cases.analyze_graph import AnalyzeGraph
-from crawler.use_cases.repositories.user_repository import UserRepository
+from application.config.app import db, twitter_client, celery
+from application.entities.missing_tweet import MissingTweet
+from application.use_cases.search_tweets import SearchTweets
+from application.use_cases.analyze_graph import AnalyzeGraph
+from application.use_cases.repositories.user_repository import UserRepository
 from neo4j import exceptions
 
 import logging, requests, os, math

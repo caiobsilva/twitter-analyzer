@@ -1,5 +1,5 @@
-from crawler.drivers.neo4j.client import Client
-from crawler.drivers.twitter.api_wrapper import TwitterApiWrapper
+from application.drivers.neo4j.client import Client
+from application.drivers.twitter.api_wrapper import TwitterApiWrapper
 from celery import Celery
 
 import os, tweepy
@@ -12,9 +12,9 @@ db = Client(
 
 # redis://:password@hostname:port/db_number
 celery = Celery(
-  "crawler",
+  "application",
   broker=f"redis://:{os.getenv('REDIS_PASS')}@{os.getenv('REDIS_HOST')}:{os.getenv('REDIS_PORT')}/0",
-  include=["crawler.use_cases.tasks.tasks"]
+  include=["application.use_cases.tasks.tasks"]
 )
 
 tweepy_client = tweepy.Client(

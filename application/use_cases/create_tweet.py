@@ -1,6 +1,6 @@
-from crawler.entities.user import User
-from crawler.entities.tweet import Tweet
-from crawler.entities.missing_tweet import MissingTweet
+from application.entities.user import User
+from application.entities.tweet import Tweet
+from application.entities.missing_tweet import MissingTweet
 import html, logging
 
 class CreateTweet:

@@ -1,9 +1,9 @@
 import logging
-from crawler.entities.missing_user import MissingUser
-from crawler.entities.tweet import Tweet
-from crawler.entities.missing_tweet import MissingTweet
-from crawler.use_cases.create_tweet import CreateTweet
-from crawler.drivers.twitter.api_wrapper import TwitterApiWrapper
+from application.entities.missing_user import MissingUser
+from application.entities.tweet import Tweet
+from application.entities.missing_tweet import MissingTweet
+from application.use_cases.create_tweet import CreateTweet
+from application.drivers.twitter.api_wrapper import TwitterApiWrapper
 from typing import Any, Callable, Tuple, List
 
 import math

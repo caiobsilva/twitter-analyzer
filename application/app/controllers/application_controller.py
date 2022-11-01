@@ -1,8 +1,8 @@
 from flask import make_response, request
-from crawler.use_cases.tasks.tasks import query_tweets, analyze_graph
-from crawler.use_cases.search_tweets import SearchTweets
-from crawler.drivers.cache.json_cache import JSONCache
-from crawler.config.app import twitter_client
+from application.use_cases.tasks.tasks import query_tweets, analyze_graph
+from application.use_cases.search_tweets import SearchTweets
+from application.drivers.cache.json_cache import JSONCache
+from application.config.app import twitter_client
 
 class ApplicationController:
   def show():

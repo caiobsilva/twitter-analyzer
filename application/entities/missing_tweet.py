@@ -1,7 +1,7 @@
 from collections import namedtuple
 from typing import NamedTuple
 
-from crawler.entities.missing_user import MissingUser
+from application.entities.missing_user import MissingUser
 
 class MissingTweet:
   def __init__(self, id):

@@ -1,5 +1,5 @@
 from typing import Any
-import crawler, os, json
+import application, os, json
 
 class JSONCache:
   def __init__(self) -> None:
@@ -13,7 +13,7 @@ class JSONCache:
     return json.load(open(f"{self.path}/{file_name}.json","r"))
 
   def base_path(self) -> str:
-    path = f"{os.path.dirname(crawler.__file__)}/res"
+    path = f"{os.path.dirname(application.__file__)}/res"
     os.makedirs(path, exist_ok=True)
 
     return path
