@@ -8,7 +8,7 @@ from neo4j import exceptions
 import logging, requests, os, math
 
 @celery.task
-def query_tweets(query, start_time, amount=1000, batch_size=300, cursor_id = None):
+def query_tweets(query, start_time, amount=100000, batch_size=300, cursor_id = None):
   cursor_id = None
   repetitions = math.ceil(amount / batch_size)
 

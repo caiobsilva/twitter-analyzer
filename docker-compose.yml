@@ -22,7 +22,7 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - app:/data
+      - app:/application
 
   workers:
     build:
@@ -52,7 +52,7 @@ services:
       - "7687:7687"
       - "7473:7473"
     volumes:
-      - ./data:/data
+      - neo4j:/data
     environment:
       NEO4J_AUTH: "neo4j/${NEO4J_PASS}"
       NEO4J_dbms_logs_debug_level: DEBUG
@@ -74,4 +74,6 @@ services:
 
 volumes:
   app:
+    external: false
+  neo4j:
     external: false

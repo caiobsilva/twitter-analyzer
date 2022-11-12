@@ -19,7 +19,7 @@ class MissingTweet:
     this method returns a mocked author with an id related to the tweet,
     so that mentions can still be traced in the database"""
 
-    return MissingUser(f"00000{self.id}")
+    return MissingUser(int(f"00000{self.id}"))
 
   def as_cypher_object(self):
     '''self.a, self.b... -> { 'a': 'x', 'b': 'y' }'''
