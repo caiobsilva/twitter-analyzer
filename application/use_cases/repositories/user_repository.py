@@ -7,7 +7,7 @@ class UserRepository:
     self.db = db
 
   def show(self, relationship: str) -> List:
-    return self.db.read(f"MATCH (n)-[r:{relationship}]-(m) RETURN n, r, m LIMIT 10000")
+    return self.db.read(f"MATCH (n)-[r:{relationship}]-(m) RETURN n, r, m")
 
   def create(self, tweets: List[Tweet]) -> None:
     author_queries = []

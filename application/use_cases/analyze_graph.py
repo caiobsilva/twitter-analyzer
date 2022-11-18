@@ -1,6 +1,6 @@
-import logging
 from typing import Any, List
 import networkx as nx
+import numpy as np
 
 class AnalyzeGraph:
   def __init__(self, nodes: Any, edges: Any) -> None:
@@ -31,21 +31,42 @@ class AnalyzeGraph:
     return g
 
   def _prune_irrelevant_nodes(self, graph: nx.Graph) -> nx.Graph:
-    # remove nodes that are part of subgraphs with < 4 connections
-    for component in list(nx.connected_components(graph)):
-      if len(component) < 15:
-        for node in component:
-          graph.remove_node(node)
+    # remove nodes that are part of subgraphs with < x connections
+    # for component in list(nx.connected_components(graph)):
+    #   if len(component) < 15:
+    #     for node in component:
+    #       graph.remove_node(node)
 
-    return graph
+    # remove self loop edges
+    graph.remove_edges_from(nx.selfloop_edges(graph))
+
+    # get biggest connected subgraph
+    relevant_subgraph = graph.subgraph(max(nx.connected_components(graph), key=len))
+
+    return relevant_subgraph
 
   def _get_node_communities(self, graph: nx.Graph) -> dict:
-    communities = nx.algorithms.community.greedy_modularity_communities(graph)
+    # creates a 'supernode graph', merging nodes with a single edge
+    # to the connected node
+    supernode_graph = graph.copy()
+    supernode_graph.remove_edges_from(nx.selfloop_edges(supernode_graph))
+    nodes_to_remove = [n for n in supernode_graph.nodes if len(list(supernode_graph.neighbors(n))) == 1]
+
+    for node in nodes_to_remove:
+      supernode_graph.remove_node(node)
+
+    # calculate communities for subgraph
+    communities = nx.community.louvain_communities(supernode_graph)
 
     node_community_dict = {}
     for i, community in enumerate(communities):
       for node in community:
         node_community_dict[node] = i
+
+    # add removed nodes to their super's community
+    for node in nodes_to_remove:
+      neighbor = list(graph.neighbors(node))[0]
+      node_community_dict[node] = node_community_dict[neighbor]
 
     return node_community_dict
 
