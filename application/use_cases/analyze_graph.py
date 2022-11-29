@@ -9,12 +9,13 @@ class AnalyzeGraph:
     self.nodes = [n for n in nodes]
     self.edges = [{ "from": e.start_node["id"], "to": e.end_node["id"] } for e in edges]
 
+
   def execute(self) -> dict:
     graph = self._create_graph()
     relevant_graph = self._prune_irrelevant_nodes(graph)
 
     centrality = nx.pagerank(relevant_graph)
-    positions = nx.spring_layout(relevant_graph, iterations=1000)
+    positions = nx.spring_layout(relevant_graph, iterations=200)
     communities = self._get_node_communities(relevant_graph, centrality)
 
     return self._aggregate_data(relevant_graph, centrality, positions, communities)
@@ -31,6 +32,7 @@ class AnalyzeGraph:
 
     return g
 
+
   def _prune_irrelevant_nodes(self, graph: nx.Graph) -> nx.Graph:
     # remove self loop edges
     graph.remove_edges_from(nx.selfloop_edges(graph))
@@ -39,6 +41,7 @@ class AnalyzeGraph:
     relevant_subgraph = graph.subgraph(max(nx.connected_components(graph), key=len))
 
     return relevant_subgraph
+
 
   def _get_node_communities(self, graph: nx.Graph, centrality_data: List) -> dict:
     # get centrality outliers
@@ -104,6 +107,7 @@ class AnalyzeGraph:
       node["community"] = community
 
     return { "nodes": relevant_nodes, "edges": self.edges }
+
 
   def _get_outliers(self, centralities: dict) -> List:
     # calculate standard deviation
