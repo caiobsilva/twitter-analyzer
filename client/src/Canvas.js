@@ -1,29 +1,32 @@
-import React, { Component } from "react"
+import React, { useState, useEffect } from "react"
 import Graph from "react-graph-vis"
+import InfoBox from "./InfoBox"
 
-class Canvas extends Component {
-  constructor(props) {
-    super(props)
+function Canvas() {
+  const [graph, setGraph] = useState({
+    nodes: [],
+    edges: []
+  })
 
-    this.state = {
-      graph: {
-        nodes: [],
-        edges: []
-      }
-    }
+  const [visJS, setVisJS] = useState(null)
 
-    this.palette = ["#264653", "#2A9D8F", "#E9C46A", "#F4A261", "#E76F51"]
+  const [palette, setPalette] = useState(
+    ["#264653", "#2A9D8F", "#E9C46A", "#F4A261", "#E76F51"]
+  )
 
-    this.setGraphData = this.setGraphData.bind(this)
-  }
+  const [infoBox, setInfoBox] = useState({
+    display: "none",
+    name: "",
+    username: ""
+  })
 
-  componentDidMount() {
+  useEffect(() => {
     fetch("http://localhost:5000/")
       .then((response) => { return response.json() })
-      .then((data) => { this.setGraphData(data) })
-  }
+      .then((data) => { setGraphData(data) })
+  }, [])
 
-  setGraphData(graph_data) {
+  const setGraphData = (graph_data) => {
     graph_data.nodes = Object.values(graph_data.nodes).map((node) => {
       var size = node.degree_centrality * 10000
 
@@ -41,8 +44,8 @@ class Canvas extends Component {
         size: size,
         title: node.community,
         color: {
-          border: this.palette[node.community % 5],
-          background: this.palette[node.community % 5]
+          border: palette[node.community % 5],
+          background: palette[node.community % 5]
         }
       }
     })
@@ -60,76 +63,101 @@ class Canvas extends Component {
         from: edge.from,
         to: edge.to,
         color: {
-          color: this.palette[parent_node.community % 5]
+          color: palette[parent_node.community % 5]
         }
       }
     })
-    // var min = graph_data.nodes.reduce(function(prev, curr) {
-    //   return prev.size < curr.size ? prev : curr
-    // })
 
-    // var max = graph_data.nodes.reduce(function(prev, curr) {
-    //   return prev.size < curr.size ? curr : prev
-    // })
-
-    // console.log(`min: ${min.size}, max: ${max.size}`)
-
-    this.setState(() => {
-      return { graph: graph_data }
-    })
+    setGraph(graph_data)
   }
 
-  render() {
-    const canvasStyle = {
-      // backgroundColor: "#041C32"
-      backgroundColor: "#FFFFFF"
-    }
+  const canvasStyle = {
+    // backgroundColor: "#041C32"
+    backgroundColor: "#FFFFFF"
+  }
 
-    const options = {
-      nodes: {
-        shape: "dot",
-        color: {
-          // border: "#000000",
-          // background: "#ECB365",
-          hover: {
-            border: "#000000",
-            background: "#A5C9CA"
-          }
-        },
-        font: {
-          color: "#DCD7C9"
+  const options = {
+    nodes: {
+      shape: "dot",
+      color: {
+        // border: "#000000",
+        // background: "#ECB365",
+        hover: {
+          border: "#000000",
+          background: "#A5C9CA"
         }
       },
-      edges: {
-        smooth: false,
-        // color: {
-        //   color: "#A5C9CA"
-        // }
-      },
-      physics: false,
-      interaction: {
-        dragNodes: true,
-        zoomView: true,
-        dragView: true,
-        hover: true
+      font: {
+        color: "#DCD7C9"
       }
+    },
+    edges: {
+      smooth: false,
+      // color: {
+      //   color: "#A5C9CA"
+      // }
+    },
+    physics: false,
+    interaction: {
+      dragNodes: true,
+      zoomView: true,
+      dragView: true,
+      hover: true
     }
+  }
 
-    const events = {
-      hoverNode: (node) => { console.log(node) }
+  const events = {
+    hoverNode: (e) => { 
+      // var node_data = visJS.get(node)
+      var node = visJS.body.nodes[e.node].options
+      // console.log(visJS)
+      // console.log(visJS.body.nodes[node.node].options)
+      setInfoBox({
+        display: "block",
+        name: node.name,
+        username: node.username
+      })
+    },
+    blurNode: () => {
+      setInfoBox({
+        display: "none",
+        name: "",
+        username: ""
+      })
     }
+  }
 
-    return (
+  return (
+    <div id="graph-screen">
+      <div style={
+        { 
+          display: infoBox.display, 
+          position: "absolute", 
+          backgroundColor: "#FFFFFF", 
+          width: 300, 
+          height: 300, 
+          right: "4%",
+          top: "4%",
+          zIndex: 1000 
+        }
+      }>
+        <InfoBox {...infoBox}/>
+      </div>
+      
       <div id="canvas" style={canvasStyle}>
         <Graph
-          graph={this.state.graph}
+          graph={graph}
           options={options}
           events={events}
-          style={{ height: "100vh" }}
+          style={{ height: "100vh", position: "relative", zIndex: 1 }}
+          getNetwork={network => {
+            network.moveTo({scale: 0.05})
+            setVisJS(network)
+          }}
         />
       </div>
-    )
-  }
+    </div>
+  )
 }
 
 export default Canvas
