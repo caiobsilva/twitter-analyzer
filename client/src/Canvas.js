@@ -3,12 +3,8 @@ import Graph from "react-graph-vis"
 import InfoBox from "./InfoBox"
 
 function Canvas() {
-  const [graph, setGraph] = useState({
-    nodes: [],
-    edges: []
-  })
-
-  const [visJS, setVisJS] = useState(null)
+  const [graph, setGraph] = useState({ nodes: [], edges: [] })
+  const [network, setNetwork] = useState(null)
 
   const [palette, setPalette] = useState(
     ["#264653", "#2A9D8F", "#E9C46A", "#F4A261", "#E76F51"]
@@ -42,7 +38,6 @@ function Canvas() {
         y: node.y * 20000,
         label: node.username,
         size: size,
-        title: node.community,
         color: {
           border: palette[node.community % 5],
           background: palette[node.community % 5]
@@ -72,7 +67,6 @@ function Canvas() {
   }
 
   const canvasStyle = {
-    // backgroundColor: "#041C32"
     backgroundColor: "#FFFFFF"
   }
 
@@ -80,7 +74,7 @@ function Canvas() {
     nodes: {
       shape: "dot",
       color: {
-        // border: "#000000",
+        border: "#000000",
         // background: "#ECB365",
         hover: {
           border: "#000000",
@@ -93,9 +87,10 @@ function Canvas() {
     },
     edges: {
       smooth: false,
-      // color: {
-      //   color: "#A5C9CA"
-      // }
+      color: {
+        inherit: true
+        // color: "#A5C9CA"
+      }
     },
     physics: false,
     interaction: {
@@ -108,14 +103,18 @@ function Canvas() {
 
   const events = {
     hoverNode: (e) => { 
-      // var node_data = visJS.get(node)
-      var node = visJS.body.nodes[e.node].options
-      // console.log(visJS)
-      // console.log(visJS.body.nodes[node.node].options)
+      var node_data = network.body.nodes[e.node]
+      var node = node_data.options
+      var edges = node_data.edges
+
+      console.log(network.body.nodes[e.node])
+
       setInfoBox({
         display: "block",
         name: node.name,
-        username: node.username
+        username: node.username,
+        createdAt: node.created_at,
+        connections: edges.length
       })
     },
     blurNode: () => {
@@ -132,10 +131,9 @@ function Canvas() {
       <div style={
         { 
           display: infoBox.display, 
-          position: "absolute", 
-          backgroundColor: "#FFFFFF", 
+          position: "absolute",
           width: 300, 
-          height: 300, 
+          maxHeight: 500, 
           right: "4%",
           top: "4%",
           zIndex: 1000 
@@ -151,8 +149,8 @@ function Canvas() {
           events={events}
           style={{ height: "100vh", position: "relative", zIndex: 1 }}
           getNetwork={network => {
+            setNetwork(network)
             network.moveTo({scale: 0.05})
-            setVisJS(network)
           }}
         />
       </div>
