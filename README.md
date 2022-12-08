@@ -1,1 +1,1 @@
-# fake-news-analyzer
+# twitter-analyzer
