@@ -13,7 +13,6 @@ export default function InfoBox(props) {
     setCreatedAt(new Date(props.createdAt))
   }, [props])
 
-
   return (
     <div className="info-box" style={
       { 

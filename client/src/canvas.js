@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react"
 import Graph from "react-graph-vis"
-import InfoBox from "./InfoBox"
+import InfoBox from "./info-box"
 
-function Canvas() {
+export default function Canvas() {
   const [graph, setGraph] = useState({ nodes: [], edges: [] })
   const [network, setNetwork] = useState(null)
 
@@ -17,7 +17,7 @@ function Canvas() {
   })
 
   useEffect(() => {
-    fetch("http://localhost:5000/")
+    fetch("http://localhost:5000/api/analysis")
       .then((response) => { return response.json() })
       .then((data) => { setGraphData(data) })
   }, [])
@@ -75,7 +75,6 @@ function Canvas() {
       shape: "dot",
       color: {
         border: "#000000",
-        // background: "#ECB365",
         hover: {
           border: "#000000",
           background: "#A5C9CA"
@@ -89,7 +88,6 @@ function Canvas() {
       smooth: false,
       color: {
         inherit: true
-        // color: "#A5C9CA"
       }
     },
     physics: false,
@@ -157,5 +155,3 @@ function Canvas() {
     </div>
   )
 }
-
-export default Canvas

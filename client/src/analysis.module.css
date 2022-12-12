@@ -1,0 +1,45 @@
+.analysis {
+    display: flex;
+    background-color: #FFFFFF;
+    padding: 1rem;
+    border-radius: 5px;
+    box-shadow: 0 0px 1px hsla(0, 0%, 0%, 0.2), 0 1px 2px hsla(0, 0%, 0%, 0.2);
+    margin-bottom: 1rem;
+    justify-content: center;
+}
+
+.analysis div {
+    margin: auto;
+    min-width: 9rem;
+}
+
+.analysis button {
+    width: 7rem;
+    height: 2.5rem;
+    text-align: center;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 0 0px 1px hsla(0, 0%, 0%, 0.2), 0 1px 2px hsla(0, 0%, 0%, 0.2);
+    background-color: white;
+}
+
+.analysis h1, h2, h3, h4 {
+    font-family: inherit;
+    color: #212121;
+    font-weight: 500;
+}
+
+.analysis h1 {
+    font-size: 2rem;
+}
+
+.analysis h2 {
+    font-size: 1.5rem;
+    font-style: italic;
+    color: #414141;
+}
+
+.analysis h3 {
+    font-size: 1.5rem;
+    text-align: center;
+}
