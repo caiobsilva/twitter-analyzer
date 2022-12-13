@@ -21,8 +21,8 @@ services:
         condition: service_healthy
     ports:
       - "5000:5000"
-    volumes:
-      - app:/application
+    # volumes:
+    #   - app:/application
 
   workers:
     build:
@@ -73,7 +73,7 @@ services:
     command: redis-server --save 20 1 --loglevel warning --port ${REDIS_PORT} --requirepass ${REDIS_PASS}
 
 volumes:
-  app:
-    external: false
+  # app:
+  #   external: false
   neo4j:
     external: false

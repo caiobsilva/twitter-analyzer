@@ -1,6 +1,6 @@
 FROM python:3.9.12
 
-RUN pip3 install flask tweepy neo4j redis celery[redis] networkx[default]
+RUN pip3 install flask tweepy neo4j redis celery[redis] networkx[default] flask-cors
 
 ARG APP_URI
 ARG TWITTER_BEARER_TOKEN
