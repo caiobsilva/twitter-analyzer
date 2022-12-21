@@ -1,0 +1,22 @@
+.analysesError {
+    width: 100%;
+    text-align: center;
+    margin: auto;
+}
+
+.analysesError h2 {
+    font-size: 2rem;
+    font-style: italic;
+}
+
+.analyses {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    /* flex: 1 0 0; */
+    width: 100%;
+}
+
+.analyses div {
+    width: 30%;
+}
