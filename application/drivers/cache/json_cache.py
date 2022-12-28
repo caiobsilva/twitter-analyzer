@@ -20,7 +20,7 @@ class JSONCache:
 
     analyses = []
     for filename in os.listdir(path):
-      with open(os.path.join(path, filename), 'r') as f:
+      with open(os.path.join(path, filename), "r") as f:
         data = json.load(f)
         analyses.append(data)
 

@@ -1,5 +1,5 @@
-import { Form } from "react-router-dom";
-import styles from './analysis.module.css';
+import { Form } from "react-router-dom"
+import styles from './analysis.module.css'
 
 export default function Analysis(props) {
   const analysis = {
@@ -7,7 +7,7 @@ export default function Analysis(props) {
     term: props.term,
     status: props.status,
     createdAt: new Date(props.created_at),
-  };
+  }
 
   const statusEnum = {
     "parsing": { text: "processando", color: "#fcbf49" },
@@ -47,7 +47,7 @@ export default function Analysis(props) {
                 "tem certeza que deseja deletar esta análise?"
               )
             ) {
-              event.preventDefault();
+              event.preventDefault()
             }
           }}
         >

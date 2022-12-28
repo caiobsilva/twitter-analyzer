@@ -5,6 +5,8 @@ from application.entities.graph import Graph
 from application.config.app import celery
 from datetime import datetime
 
+import logging
+
 class ApplicationController:
   def show():
     res = JSONCache().load("test")
@@ -21,11 +23,12 @@ class ApplicationController:
     if not all(param in ["query", "start_time"] for param in params):
       response = make_response({ "error": "missing params" }, 400)
     else:
+      analysis = Graph.create(params["query"])
+
       start_time = datetime.strptime(params["start_time"], "%Y-%m-%d")
-      query_tweets.apply_async((params["query"], start_time.strftime("%Y-%m-%dT%H:%M:%S.%fZ")))
+      query_tweets.apply_async((params["query"], start_time.strftime("%Y-%m-%dT%H:%M:%S.%fZ"), analysis.id))
       
-      graph_data = Graph.create(params["query"])
-      response = make_response(vars(graph_data), 202)
+      response = make_response(vars(analysis), 202)
 
     response.headers.add("Access-Control-Allow-Origin", "*")
 
@@ -36,7 +39,7 @@ class ApplicationController:
     analyses = JSONCache().load_all()
 
     response = jsonify(analyses)
-    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add("Access-Control-Allow-Origin", "*")
 
     return response
 
@@ -52,8 +55,22 @@ class ApplicationController:
   # database for this project. for a production tool, a database
   # such as S3 should be used
   def save_file():
-    data = request.get_json()
-
+    data = request.get_json(force=True)
+    logging.warning(data)
     JSONCache().save(data, data["id"])
 
     return make_response({}, 200)
+
+
+  def load_file():
+    params = request.args.to_dict()
+
+    if not all(param in ["id"] for param in params):
+      response = make_response({ "error": "missing params" }, 400)
+    else:
+      data = JSONCache().load(params["id"])
+      response = make_response(data, 200)
+
+    response.headers.add("Access-Control-Allow-Origin", "*")
+
+    return response

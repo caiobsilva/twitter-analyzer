@@ -1,6 +1,6 @@
 from application.drivers.cache.json_cache import JSONCache
 # from typing import Self
-import uuid, datetime, requests, os
+import uuid, datetime, requests, os, json
 
 class Graph:
   def __init__(self, id, term, status, created_at, data):
@@ -12,7 +12,9 @@ class Graph:
 
   @classmethod
   def get(cls, id: str): #-> Self:
-    data = JSONCache().load(id)
+    url = f"http://{os.getenv('APP_URI')}:5000/api/file?id={id}"
+    res = requests.get(url)
+    data = json.loads(res.text)
     
     return Graph(
       data["id"], data["term"], data["status"], 
@@ -33,3 +35,7 @@ class Graph:
     # JSONCache().save(vars(self), self.id)
     url = f"http://{os.getenv('APP_URI')}:5000/api/file"
     requests.post(url, json = vars(self))
+
+  def load(self): #-> Self:
+    url = f"http://{os.getenv('APP_URI')}:5000/api/file?id={self.id}"
+    requests.get(url)

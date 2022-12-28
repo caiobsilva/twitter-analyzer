@@ -12,9 +12,11 @@
 .analyses {
     display: flex;
     flex-wrap: wrap;
+    /* justify-content: baseline; */
+    /* justify-content: space-evenly; */
     justify-content: space-between;
     /* flex: 1 0 0; */
-    width: 100%;
+    /* width: 100%; */
 }
 
 .analyses div {
